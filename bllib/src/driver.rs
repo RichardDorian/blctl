@@ -10,6 +10,10 @@ pub trait BacklightDriver {
     /// Identifier of the device this driver instance targets.
     fn name(&self) -> &str;
 
+    /// Identifier of the driver backend used to control this device (e.g.
+    /// `"sysfs"`).
+    fn driver_name(&self) -> &'static str;
+
     /// Current brightness, in raw device units.
     fn get_brightness(&self) -> Result<u32, BacklightError>;
 

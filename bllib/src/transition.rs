@@ -103,6 +103,10 @@ mod tests {
             "mock"
         }
 
+        fn driver_name(&self) -> &'static str {
+            "mock"
+        }
+
         fn get_brightness(&self) -> Result<u32, BacklightError> {
             Ok(self.brightness.get())
         }

@@ -52,6 +52,10 @@ impl BacklightDriver for SysfsDriver {
         &self.device
     }
 
+    fn driver_name(&self) -> &'static str {
+        "sysfs"
+    }
+
     fn get_max_brightness(&self) -> Result<u32, BacklightError> {
         self.read_u32("max_brightness")
     }
