@@ -13,18 +13,36 @@ impl BrightnessValue {
     /// Resolve this value to raw device units, given the device's current
     /// and maximum brightness. Delta values are clamped to `0..=max`
     /// rather than over/underflowing or erroring.
+    ///
+    /// Percentage-derived values never resolve to 0 (unless `max` itself
+    /// is 0) - a percentage is meant to dim the backlight, not turn it
+    /// off, so anything that rounds down to 0 is floored to 1 instead.
     pub fn resolve(self, current: u32, max: u32) -> u32 {
         match self {
             BrightnessValue::Raw(value) => value,
-            BrightnessValue::Percent(percent) => (max as f64 * percent / 100.0).round() as u32,
+            BrightnessValue::Percent(percent) => {
+                floor_percent_result((max as f64 * percent / 100.0).round(), max)
+            }
             BrightnessValue::DeltaRaw(delta) => {
                 (current as i64).saturating_add(delta).clamp(0, max as i64) as u32
             }
             BrightnessValue::DeltaPercent(percent) => {
                 let delta = max as f64 * percent / 100.0;
-                (current as f64 + delta).round().clamp(0.0, max as f64) as u32
+                let value = (current as f64 + delta).round().clamp(0.0, max as f64);
+                floor_percent_result(value, max)
             }
         }
+    }
+}
+
+/// Floors a percentage-derived brightness value at 1 instead of 0, unless
+/// the device's maximum brightness is itself 0 (in which case 0 is the
+/// only value that isn't out of range).
+fn floor_percent_result(value: f64, max: u32) -> u32 {
+    if value < 1.0 && max >= 1 {
+        1
+    } else {
+        value as u32
     }
 }
 
@@ -277,8 +295,8 @@ mod tests {
     }
 
     #[test]
-    fn clamps_negative_percent_delta_to_zero() {
-        assert_eq!(BrightnessValue::DeltaPercent(-1000.0).resolve(50, 100), 0);
+    fn clamps_negative_percent_delta_to_one_instead_of_zero() {
+        assert_eq!(BrightnessValue::DeltaPercent(-1000.0).resolve(50, 100), 1);
     }
 
     #[test]
@@ -290,6 +308,34 @@ mod tests {
     #[test]
     fn resolves_delta_when_max_is_zero() {
         assert_eq!(BrightnessValue::DeltaRaw(5).resolve(0, 0), 0);
+        // No floor of 1 applies when the device's max is itself 0 - 1
+        // would be out of range.
         assert_eq!(BrightnessValue::DeltaPercent(50.0).resolve(0, 0), 0);
+    }
+
+    #[test]
+    fn floors_zero_percent_to_one() {
+        assert_eq!(BrightnessValue::Percent(0.0).resolve(0, 100), 1);
+    }
+
+    #[test]
+    fn floors_tiny_percent_that_rounds_down_to_zero_to_one() {
+        assert_eq!(BrightnessValue::Percent(0.1).resolve(0, 100), 1);
+    }
+
+    #[test]
+    fn does_not_floor_percent_of_zero_max_device() {
+        assert_eq!(BrightnessValue::Percent(50.0).resolve(0, 0), 0);
+    }
+
+    #[test]
+    fn floors_percent_delta_that_rounds_down_to_zero_to_one() {
+        assert_eq!(BrightnessValue::DeltaPercent(-50.0).resolve(50, 100), 1);
+    }
+
+    #[test]
+    fn does_not_floor_percent_values_above_one() {
+        assert_eq!(BrightnessValue::Percent(50.0).resolve(0, 100), 50);
+        assert_eq!(BrightnessValue::DeltaPercent(-10.0).resolve(50, 100), 40);
     }
 }
