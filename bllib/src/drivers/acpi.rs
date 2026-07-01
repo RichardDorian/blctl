@@ -4,21 +4,21 @@ use std::{fs, io, path::PathBuf};
 use crate::discovery::DeviceScanner;
 use crate::driver::{BacklightDriver, BacklightError};
 
-const SYSFS_BACKLIGHT_ROOT: &str = "/sys/class/backlight";
+const ACPI_BACKLIGHT_ROOT: &str = "/sys/class/backlight";
 
 /// Backlight driver that talks to a device under
 /// `/sys/class/backlight/<device>`.
 #[derive(Debug)]
-pub struct SysfsDriver {
+pub struct AcpiDriver {
     device: String,
     path: PathBuf,
 }
 
-impl SysfsDriver {
+impl AcpiDriver {
     /// Resolve `device_name` to `/sys/class/backlight/<device_name>` and
     /// verify it exists.
     pub fn new(device_name: &str) -> Result<Self, BacklightError> {
-        let path = PathBuf::from(SYSFS_BACKLIGHT_ROOT).join(device_name);
+        let path = PathBuf::from(ACPI_BACKLIGHT_ROOT).join(device_name);
         if !path.is_dir() {
             return Err(BacklightError::NotFound {
                 device: device_name.to_string(),
@@ -47,13 +47,13 @@ impl SysfsDriver {
     }
 }
 
-impl BacklightDriver for SysfsDriver {
+impl BacklightDriver for AcpiDriver {
     fn name(&self) -> &str {
         &self.device
     }
 
     fn driver_name(&self) -> &'static str {
-        "sysfs"
+        "ACPI"
     }
 
     fn get_max_brightness(&self) -> Result<u32, BacklightError> {
@@ -94,28 +94,28 @@ impl BacklightDriver for SysfsDriver {
     }
 }
 
-/// Discovers sysfs backlight devices under `/sys/class/backlight`.
+/// Discovers ACPI backlight devices under `/sys/class/backlight`.
 #[derive(Debug, Default, Clone, Copy)]
-pub struct SysfsScanner;
+pub struct AcpiScanner;
 
-impl SysfsScanner {
+impl AcpiScanner {
     pub fn new() -> Self {
         Self
     }
 }
 
-impl DeviceScanner for SysfsScanner {
-    type Driver = SysfsDriver;
+impl DeviceScanner for AcpiScanner {
+    type Driver = AcpiDriver;
 
-    fn scan(&self) -> Result<Vec<SysfsDriver>, BacklightError> {
-        let root = Path::new(SYSFS_BACKLIGHT_ROOT);
+    fn scan(&self) -> Result<Vec<AcpiDriver>, BacklightError> {
+        let root = Path::new(ACPI_BACKLIGHT_ROOT);
         if !root.is_dir() {
             // No backlight class on this system - not an error, just no devices.
             return Ok(Vec::new());
         }
 
         let to_io_err = |source: io::Error| BacklightError::Io {
-            device: SYSFS_BACKLIGHT_ROOT.to_string(),
+            device: ACPI_BACKLIGHT_ROOT.to_string(),
             source,
         };
 
@@ -123,7 +123,7 @@ impl DeviceScanner for SysfsScanner {
             .map_err(to_io_err)?
             .map(|entry| {
                 let entry = entry.map_err(to_io_err)?;
-                SysfsDriver::new(&entry.file_name().to_string_lossy())
+                AcpiDriver::new(&entry.file_name().to_string_lossy())
             })
             .collect()
     }

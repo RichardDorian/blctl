@@ -3,7 +3,7 @@ mod commands;
 
 use std::process::ExitCode;
 
-use bllib::drivers::sysfs::SysfsScanner;
+use bllib::drivers::acpi::AcpiScanner;
 use bllib::{BacklightError, DeviceScanner};
 use clap::Parser;
 use cli::{Cli, Command};
@@ -16,7 +16,7 @@ fn main() -> ExitCode {
         return ExitCode::SUCCESS;
     }
 
-    let devices = match SysfsScanner::new().scan() {
+    let devices = match AcpiScanner::new().scan() {
         Ok(devices) => devices,
         Err(err) => return report_error(&err),
     };

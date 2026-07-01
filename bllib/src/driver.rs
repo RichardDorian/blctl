@@ -4,14 +4,14 @@ use std::path::PathBuf;
 /// A pluggable way of sending backlight commands to a device.
 ///
 /// All brightness values are raw device units as reported by the driver's
-/// underlying interface (for the sysfs driver, this is whatever scale the
+/// underlying interface (for the ACPI driver, this is whatever scale the
 /// kernel exposes via `max_brightness` -- it is NOT normalized to 0-100).
 pub trait BacklightDriver {
     /// Identifier of the device this driver instance targets.
     fn name(&self) -> &str;
 
     /// Identifier of the driver backend used to control this device (e.g.
-    /// `"sysfs"`).
+    /// `"ACPI"`).
     fn driver_name(&self) -> &'static str;
 
     /// Current brightness, in raw device units.

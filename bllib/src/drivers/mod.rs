@@ -1,1 +1,1 @@
-pub mod sysfs;
+pub mod acpi;

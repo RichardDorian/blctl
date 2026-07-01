@@ -2,7 +2,7 @@ use crate::driver::{BacklightDriver, BacklightError};
 
 /// Discovers backlight devices controllable by a particular driver backend.
 ///
-/// Each driver backend (e.g. sysfs) has its own scanner implementation,
+/// Each driver backend (e.g. ACPI) has its own scanner implementation,
 /// returning one driver instance per device it finds.
 pub trait DeviceScanner {
     /// The concrete driver type this scanner discovers devices for.
