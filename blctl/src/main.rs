@@ -1,31 +1,12 @@
+mod cli;
+mod commands;
+
 use std::process::ExitCode;
 
 use bllib::drivers::sysfs::SysfsScanner;
-use bllib::transitions::Exponential;
-use bllib::{
-    BacklightDriver, BacklightError, DeviceScanner, TransitionConfig, transition_brightness,
-};
-use clap::{Parser, Subcommand};
-
-#[derive(Parser)]
-#[command(name = "blctl", version, about = "Control Linux backlight devices")]
-struct Cli {
-    #[command(subcommand)]
-    command: Command,
-}
-
-#[derive(Subcommand)]
-enum Command {
-    /// Print the maximum brightness value
-    Max,
-    /// Print the current brightness value
-    Get,
-    /// Set the brightness to VALUE
-    Set {
-        /// Brightness value, in the device's raw units
-        value: u32,
-    },
-}
+use bllib::{BacklightError, DeviceScanner};
+use clap::Parser;
+use cli::Cli;
 
 fn main() -> ExitCode {
     let cli = Cli::parse();
@@ -40,18 +21,7 @@ fn main() -> ExitCode {
         return ExitCode::FAILURE;
     };
 
-    let result = match cli.command {
-        Command::Max => driver.get_max_brightness().map(|v| println!("{v}")),
-        Command::Get => driver.get_brightness().map(|v| println!("{v}")),
-        Command::Set { value } => transition_brightness(
-            &driver,
-            value,
-            &Exponential::default(),
-            &TransitionConfig::default(),
-        ),
-    };
-
-    match result {
+    match commands::run(cli.command, &driver) {
         Ok(()) => ExitCode::SUCCESS,
         Err(err) => report_error(&err),
     }
