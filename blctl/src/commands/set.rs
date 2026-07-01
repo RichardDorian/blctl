@@ -1,7 +1,7 @@
 use bllib::transitions::Exponential;
 use bllib::{BacklightDriver, BacklightError, TransitionConfig, transition_brightness};
 
-use crate::cli::BrightnessValue;
+use crate::utils::BrightnessValue;
 
 pub fn run(
     driver: &dyn BacklightDriver,

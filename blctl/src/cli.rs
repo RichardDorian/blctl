@@ -1,10 +1,7 @@
-mod brightness_value;
-
 use clap::{Parser, Subcommand};
 use clap_complete::Shell;
 
-pub use brightness_value::BrightnessValue;
-use brightness_value::parse_brightness_value;
+use crate::utils::{BrightnessValue, parse_brightness_value};
 
 #[derive(Parser)]
 #[command(name = "blctl", version, about = "Control Linux backlight devices")]
