@@ -1,6 +1,6 @@
 use bllib::{BacklightDriver, BacklightError};
 
-pub fn run(devices: &[impl BacklightDriver]) -> Result<(), BacklightError> {
+pub fn run(devices: &[Box<dyn BacklightDriver>]) -> Result<(), BacklightError> {
     for (i, device) in devices.iter().enumerate() {
         if i > 0 {
             println!();

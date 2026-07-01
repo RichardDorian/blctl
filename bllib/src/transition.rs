@@ -38,7 +38,7 @@ impl Default for TransitionConfig {
 /// Blocks the calling thread for the duration of the transition, sleeping
 /// `config.step_interval` between brightness updates.
 pub fn transition_brightness(
-    driver: &impl BacklightDriver,
+    driver: &dyn BacklightDriver,
     target: u32,
     transition: &impl Transition,
     config: &TransitionConfig,

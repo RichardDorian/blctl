@@ -3,8 +3,7 @@ mod commands;
 
 use std::process::ExitCode;
 
-use bllib::drivers::acpi::AcpiScanner;
-use bllib::{BacklightDriver, BacklightError, DeviceScanner};
+use bllib::BacklightError;
 use clap::Parser;
 use cli::{Cli, Command};
 
@@ -16,7 +15,7 @@ fn main() -> ExitCode {
         return ExitCode::SUCCESS;
     }
 
-    let devices = match AcpiScanner::new().scan() {
+    let devices = match bllib::scan_all_devices() {
         Ok(devices) => devices,
         Err(err) => return report_error(&err),
     };
@@ -45,7 +44,7 @@ fn main() -> ExitCode {
         }
     };
 
-    match commands::run(cli.command, &driver) {
+    match commands::run(cli.command, driver.as_ref()) {
         Ok(()) => ExitCode::SUCCESS,
         Err(err) => report_error(&err),
     }
