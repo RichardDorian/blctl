@@ -7,3 +7,4 @@ description = "Command-line tool for controlling Linux backlight devices"
 [dependencies]
 bllib.workspace = true
 clap.workspace = true
+clap_complete.workspace = true

@@ -6,10 +6,15 @@ use std::process::ExitCode;
 use bllib::drivers::sysfs::SysfsScanner;
 use bllib::{BacklightError, DeviceScanner};
 use clap::Parser;
-use cli::Cli;
+use cli::{Cli, Command};
 
 fn main() -> ExitCode {
     let cli = Cli::parse();
+
+    if let Command::Completions { shell } = cli.command {
+        commands::completions::run(shell);
+        return ExitCode::SUCCESS;
+    }
 
     let devices = match SysfsScanner::new().scan() {
         Ok(devices) => devices,

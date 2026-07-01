@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use clap_complete::Shell;
 
 #[derive(Parser)]
 #[command(name = "blctl", version, about = "Control Linux backlight devices")]
@@ -17,5 +18,10 @@ pub enum Command {
     Set {
         /// Brightness value, in the device's raw units
         value: u32,
+    },
+    /// Generate a shell completion script, printed to stdout
+    Completions {
+        /// Shell to generate completions for
+        shell: Shell,
     },
 }
