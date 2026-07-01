@@ -8,7 +8,7 @@ pub fn run(
     value: BrightnessValue,
     immediate: bool,
 ) -> Result<(), BacklightError> {
-    let value = value.resolve(driver.get_max_brightness()?);
+    let value = value.resolve(driver.get_brightness()?, driver.get_max_brightness()?);
 
     if immediate {
         return driver.set_brightness(value);
