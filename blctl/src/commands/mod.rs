@@ -12,7 +12,9 @@ pub fn run(command: Command, driver: &dyn BacklightDriver) -> Result<(), Backlig
     match command {
         Command::Max { .. } => max::run(driver),
         Command::Get { .. } => get::run(driver),
-        Command::Set { value, .. } => set::run(driver, value),
+        Command::Set {
+            value, immediate, ..
+        } => set::run(driver, value, immediate),
         // Handled in main() before a single device is selected, these
         // commands don't operate on one backlight device.
         Command::Completions { .. } | Command::List => unreachable!(),

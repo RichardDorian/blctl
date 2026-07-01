@@ -31,6 +31,9 @@ pub enum Command {
         /// Name of the backlight device to operate on
         #[arg(short, long)]
         device: Option<String>,
+        /// Set the brightness immediately, without a smooth transition
+        #[arg(short, long)]
+        immediate: bool,
     },
     /// Generate a shell completion script, printed to stdout
     Completions {
