@@ -4,7 +4,7 @@ mod commands;
 use std::process::ExitCode;
 
 use bllib::drivers::acpi::AcpiScanner;
-use bllib::{BacklightError, DeviceScanner};
+use bllib::{BacklightDriver, BacklightError, DeviceScanner};
 use clap::Parser;
 use cli::{Cli, Command};
 
@@ -28,9 +28,21 @@ fn main() -> ExitCode {
         };
     }
 
-    let Some(driver) = devices.into_iter().next() else {
-        eprintln!("blctl: no backlight devices found");
-        return ExitCode::FAILURE;
+    let driver = match cli.command.device() {
+        Some(name) => match devices.into_iter().find(|d| d.name() == name) {
+            Some(driver) => driver,
+            None => {
+                eprintln!("blctl: no backlight device named '{name}' found");
+                return ExitCode::FAILURE;
+            }
+        },
+        None => {
+            let Some(driver) = devices.into_iter().next() else {
+                eprintln!("blctl: no backlight devices found");
+                return ExitCode::FAILURE;
+            };
+            driver
+        }
     };
 
     match commands::run(cli.command, &driver) {
