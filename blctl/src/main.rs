@@ -1,12 +1,11 @@
 use std::process::ExitCode;
 
-use bllib::drivers::sysfs::SysfsDriver;
+use bllib::drivers::sysfs::SysfsScanner;
 use bllib::transitions::Exponential;
-use bllib::{transition_brightness, BacklightDriver, BacklightError, TransitionConfig};
+use bllib::{
+    transition_brightness, BacklightDriver, BacklightError, DeviceScanner, TransitionConfig,
+};
 use clap::{Parser, Subcommand};
-
-/// Hardcoded for now -- device discovery/selection is future work.
-const DEFAULT_DEVICE: &str = "intel_backlight";
 
 #[derive(Parser)]
 #[command(name = "blctl", version, about = "Control Linux backlight devices")]
@@ -31,9 +30,14 @@ enum Command {
 fn main() -> ExitCode {
     let cli = Cli::parse();
 
-    let driver = match SysfsDriver::new(DEFAULT_DEVICE) {
-        Ok(driver) => driver,
+    let devices = match SysfsScanner::new().scan() {
+        Ok(devices) => devices,
         Err(err) => return report_error(&err),
+    };
+
+    let Some(driver) = devices.into_iter().next() else {
+        eprintln!("blctl: no backlight devices found");
+        return ExitCode::FAILURE;
     };
 
     let result = match cli.command {
