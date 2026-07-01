@@ -1,0 +1,12 @@
+[workspace]
+resolver = "3"
+members = ["bllib", "blctl"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+
+[workspace.dependencies]
+bllib = { path = "bllib" }
+clap = { version = "4.6.1", features = ["derive"] }
+thiserror = "2.0.18"

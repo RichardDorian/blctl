@@ -1,0 +1,8 @@
+[package]
+name = "bllib"
+version.workspace = true
+edition.workspace = true
+description = "Library for controlling Linux backlight devices"
+
+[dependencies]
+thiserror.workspace = true
