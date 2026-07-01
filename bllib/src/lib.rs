@@ -4,6 +4,6 @@ pub mod drivers;
 mod transition;
 pub mod transitions;
 
-pub use discovery::DeviceScanner;
-pub use driver::{BacklightDriver, BacklightError};
-pub use transition::{Transition, TransitionConfig, transition_brightness};
+pub use discovery::*;
+pub use driver::*;
+pub use transition::*;
