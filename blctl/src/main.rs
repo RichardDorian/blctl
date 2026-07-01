@@ -1,7 +1,8 @@
 use std::process::ExitCode;
 
 use bllib::drivers::sysfs::SysfsDriver;
-use bllib::{BacklightDriver, BacklightError};
+use bllib::transitions::Exponential;
+use bllib::{transition_brightness, BacklightDriver, BacklightError, TransitionConfig};
 use clap::{Parser, Subcommand};
 
 /// Hardcoded for now -- device discovery/selection is future work.
@@ -38,7 +39,12 @@ fn main() -> ExitCode {
     let result = match cli.command {
         Command::Max => driver.get_max_brightness().map(|v| println!("{v}")),
         Command::Get => driver.get_brightness().map(|v| println!("{v}")),
-        Command::Set { value } => driver.set_brightness(value),
+        Command::Set { value } => transition_brightness(
+            &driver,
+            value,
+            &Exponential::default(),
+            &TransitionConfig::default(),
+        ),
     };
 
     match result {
