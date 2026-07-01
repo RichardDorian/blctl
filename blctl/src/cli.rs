@@ -10,6 +10,8 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Command {
+    /// List all detected backlight devices
+    List,
     /// Print the maximum brightness value
     Max,
     /// Print the current brightness value

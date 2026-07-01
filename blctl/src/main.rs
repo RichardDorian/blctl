@@ -21,6 +21,13 @@ fn main() -> ExitCode {
         Err(err) => return report_error(&err),
     };
 
+    if let Command::List = cli.command {
+        return match commands::list::run(&devices) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(err) => report_error(&err),
+        };
+    }
+
     let Some(driver) = devices.into_iter().next() else {
         eprintln!("blctl: no backlight devices found");
         return ExitCode::FAILURE;

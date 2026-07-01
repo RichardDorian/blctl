@@ -1,5 +1,6 @@
 pub mod completions;
 mod get;
+pub mod list;
 mod max;
 mod set;
 
@@ -12,8 +13,8 @@ pub fn run(command: Command, driver: &impl BacklightDriver) -> Result<(), Backli
         Command::Max => max::run(driver),
         Command::Get => get::run(driver),
         Command::Set { value } => set::run(driver, value),
-        // Handled in main() before device discovery -- generating completions
-        // doesn't need a backlight device.
-        Command::Completions { .. } => unreachable!(),
+        // Handled in main() before a single device is selected, these
+        // commands don't operate on one backlight device.
+        Command::Completions { .. } | Command::List => unreachable!(),
     }
 }
