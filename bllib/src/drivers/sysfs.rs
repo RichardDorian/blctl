@@ -1,11 +1,14 @@
+use std::path::Path;
 use std::{fs, io, path::PathBuf};
 
+use crate::discovery::DeviceScanner;
 use crate::driver::{BacklightDriver, BacklightError};
 
 const SYSFS_BACKLIGHT_ROOT: &str = "/sys/class/backlight";
 
 /// Backlight driver that talks to a device under
 /// `/sys/class/backlight/<device>`.
+#[derive(Debug)]
 pub struct SysfsDriver {
     device: String,
     path: PathBuf,
@@ -84,5 +87,40 @@ impl BacklightDriver for SysfsDriver {
                 }
             }
         })
+    }
+}
+
+/// Discovers sysfs backlight devices under `/sys/class/backlight`.
+#[derive(Debug, Default, Clone, Copy)]
+pub struct SysfsScanner;
+
+impl SysfsScanner {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl DeviceScanner for SysfsScanner {
+    type Driver = SysfsDriver;
+
+    fn scan(&self) -> Result<Vec<SysfsDriver>, BacklightError> {
+        let root = Path::new(SYSFS_BACKLIGHT_ROOT);
+        if !root.is_dir() {
+            // No backlight class on this system - not an error, just no devices.
+            return Ok(Vec::new());
+        }
+
+        let to_io_err = |source: io::Error| BacklightError::Io {
+            device: SYSFS_BACKLIGHT_ROOT.to_string(),
+            source,
+        };
+
+        fs::read_dir(root)
+            .map_err(to_io_err)?
+            .map(|entry| {
+                let entry = entry.map_err(to_io_err)?;
+                SysfsDriver::new(&entry.file_name().to_string_lossy())
+            })
+            .collect()
     }
 }
