@@ -10,4 +10,6 @@ edition = "2024"
 bllib = { path = "bllib" }
 clap = { version = "4.6.1", features = ["derive"] }
 clap_complete = "4.6.6"
+serde = "1.0.228"
 thiserror = "2.0.18"
+toml = "1.1.2"

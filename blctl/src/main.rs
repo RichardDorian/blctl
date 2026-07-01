@@ -1,10 +1,10 @@
 mod cli;
 mod commands;
+mod error;
 mod utils;
 
 use std::process::ExitCode;
 
-use bllib::BacklightError;
 use clap::Parser;
 use cli::{Cli, Command};
 
@@ -51,7 +51,7 @@ fn main() -> ExitCode {
     }
 }
 
-fn report_error(err: &BacklightError) -> ExitCode {
+fn report_error(err: &impl std::fmt::Display) -> ExitCode {
     eprintln!("blctl: {err}");
     ExitCode::FAILURE
 }

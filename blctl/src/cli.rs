@@ -41,6 +41,17 @@ pub enum Command {
         /// Set the brightness immediately, without a smooth transition
         #[arg(short, long)]
         immediate: bool,
+        /// Save the brightness before changing it, so it can be restored
+        /// later with `restore`
+        #[arg(short, long)]
+        save: bool,
+    },
+    /// Restore the brightness previously saved with `set --save`, and
+    /// forget the saved value
+    Restore {
+        /// Name of the backlight device to operate on
+        #[arg(short, long)]
+        device: Option<String>,
     },
     /// Generate a shell completion script, printed to stdout
     Completions {
@@ -53,9 +64,10 @@ impl Command {
     /// The `--device` argument given to this command, if it accepts one.
     pub fn device(&self) -> Option<&str> {
         match self {
-            Command::Max { device } | Command::Get { device } | Command::Set { device, .. } => {
-                device.as_deref()
-            }
+            Command::Max { device }
+            | Command::Get { device }
+            | Command::Set { device, .. }
+            | Command::Restore { device } => device.as_deref(),
             Command::List | Command::Completions { .. } => None,
         }
     }

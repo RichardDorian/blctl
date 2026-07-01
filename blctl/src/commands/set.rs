@@ -1,17 +1,24 @@
 use bllib::transitions::Exponential;
-use bllib::{BacklightDriver, BacklightError, TransitionConfig, transition_brightness};
+use bllib::{BacklightDriver, TransitionConfig, transition_brightness};
 
-use crate::utils::BrightnessValue;
+use crate::error::CliError;
+use crate::utils::{BrightnessValue, device_id, state_store};
 
 pub fn run(
     driver: &dyn BacklightDriver,
     value: BrightnessValue,
     immediate: bool,
-) -> Result<(), BacklightError> {
-    let value = value.resolve(driver.get_brightness()?, driver.get_max_brightness()?);
+    save: bool,
+) -> Result<(), CliError> {
+    let current = driver.get_brightness()?;
+    let value = value.resolve(current, driver.get_max_brightness()?);
+
+    if save {
+        state_store::save(&device_id(driver), current)?;
+    }
 
     if immediate {
-        return driver.set_brightness(value);
+        return driver.set_brightness(value).map_err(CliError::from);
     }
 
     transition_brightness(
@@ -19,5 +26,6 @@ pub fn run(
         value,
         &Exponential::default(),
         &TransitionConfig::default(),
-    )
+    )?;
+    Ok(())
 }

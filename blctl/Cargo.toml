@@ -8,3 +8,6 @@ description = "Command-line tool for controlling Linux backlight devices"
 bllib.workspace = true
 clap.workspace = true
 clap_complete.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+toml.workspace = true
