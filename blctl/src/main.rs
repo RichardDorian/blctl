@@ -3,7 +3,7 @@ use std::process::ExitCode;
 use bllib::drivers::sysfs::SysfsScanner;
 use bllib::transitions::Exponential;
 use bllib::{
-    transition_brightness, BacklightDriver, BacklightError, DeviceScanner, TransitionConfig,
+    BacklightDriver, BacklightError, DeviceScanner, TransitionConfig, transition_brightness,
 };
 use clap::{Parser, Subcommand};
 

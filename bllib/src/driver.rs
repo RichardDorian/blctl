@@ -41,7 +41,11 @@ pub enum BacklightError {
 
     /// The requested value is not valid for this device (e.g. out of range).
     #[error("invalid brightness value {value} for '{device}' (must be 0..={max})")]
-    InvalidValue { device: String, value: u32, max: u32 },
+    InvalidValue {
+        device: String,
+        value: u32,
+        max: u32,
+    },
 
     /// Any other I/O failure talking to the device.
     #[error("I/O error accessing backlight device '{device}': {source}")]
