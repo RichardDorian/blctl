@@ -30,9 +30,10 @@ pub enum Command {
     Set {
         /// Brightness value, either in the device's raw units or, if
         /// suffixed with '%', as a percentage of the device's maximum
-        /// brightness (e.g. '50%'). Prefix with '+' or '-' to adjust the
-        /// current brightness by that amount instead of setting it
-        /// outright (e.g. '+10%', '-5')
+        /// brightness (e.g. '50%'). 'max' and 'min' are aliases for '100%'
+        /// and '0%'. Prefix with '+' or '-' to adjust the current
+        /// brightness by that amount instead of setting it outright (e.g.
+        /// '+10%', '-5')
         #[arg(value_parser = parse_brightness_value, allow_hyphen_values = true)]
         value: BrightnessValue,
         /// Name of the backlight device to operate on

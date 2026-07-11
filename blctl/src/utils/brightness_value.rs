@@ -49,6 +49,13 @@ fn floor_percent_result(value: f64, max: u32) -> u32 {
 /// Parses a [`BrightnessValue`] from a command-line argument, for use as a
 /// clap `value_parser`.
 pub fn parse_brightness_value(s: &str) -> Result<BrightnessValue, String> {
+    if s.eq_ignore_ascii_case("max") {
+        return Ok(BrightnessValue::Percent(100.0));
+    }
+    if s.eq_ignore_ascii_case("min") {
+        return Ok(BrightnessValue::Percent(0.0));
+    }
+
     let (sign, rest) = match s.strip_prefix('+') {
         Some(rest) => (Some(1.0), rest),
         None => match s.strip_prefix('-') {
@@ -115,6 +122,46 @@ mod tests {
         assert_eq!(
             parse_brightness_value("12.5%"),
             Ok(BrightnessValue::Percent(12.5))
+        );
+    }
+
+    #[test]
+    fn parses_max_alias_as_100_percent() {
+        assert_eq!(
+            parse_brightness_value("max"),
+            Ok(BrightnessValue::Percent(100.0))
+        );
+    }
+
+    #[test]
+    fn parses_max_alias_case_insensitively() {
+        assert_eq!(
+            parse_brightness_value("MAX"),
+            Ok(BrightnessValue::Percent(100.0))
+        );
+        assert_eq!(
+            parse_brightness_value("Max"),
+            Ok(BrightnessValue::Percent(100.0))
+        );
+    }
+
+    #[test]
+    fn parses_min_alias_as_0_percent() {
+        assert_eq!(
+            parse_brightness_value("min"),
+            Ok(BrightnessValue::Percent(0.0))
+        );
+    }
+
+    #[test]
+    fn parses_min_alias_case_insensitively() {
+        assert_eq!(
+            parse_brightness_value("MIN"),
+            Ok(BrightnessValue::Percent(0.0))
+        );
+        assert_eq!(
+            parse_brightness_value("Min"),
+            Ok(BrightnessValue::Percent(0.0))
         );
     }
 
